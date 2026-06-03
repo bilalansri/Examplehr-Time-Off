@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ExampleHR Time-Off Assessment
 
-## Getting Started
+Next.js time-off frontend with mock HCM endpoints, TanStack Query optimistic reconciliation, employee/manager views, Storybook state coverage, and Vitest test suite.
 
-First, run the development server:
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run storybook
+npm test
+npm run test:coverage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | App at http://localhost:3000 |
+| `npm run storybook` | Storybook at http://localhost:6006 |
+| `npm test` | Unit and integration tests |
+| `npm run test:coverage` | Coverage report for HCM, hooks, API routes |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **UI** — Employee and manager views with presentational components for every meaningful state
+- **State** — TanStack Query with optimistic mutations, mutation guards, and cell-level reconciliation
+- **Mock HCM** — Next.js route handlers backed by in-memory store with anniversary bonus, silent failures, and conflict responses
 
-## Learn More
+See [docs/TRD.md](docs/TRD.md) for full technical requirements, alternatives analysis, and testing strategy.
 
-To learn more about Next.js, take a look at the following resources:
+## Routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/employee` — view balances by location, submit requests, track history
+- `/manager` — review pending requests with live balance context at approval time
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Storybook states
 
-## Deploy on Vercel
+Stories cover loading, empty, stale, optimistic pending/rollback, HCM rejected, silent mismatch, anniversary reconciliation, and manager conflict (409).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Coverage thresholds (80%+ lines/statements) apply to:
+
+- `src/lib/hcm/**`
+- `src/hooks/**`
+- `src/app/api/hcm/**`
+
+Run `npm run test:coverage` and inspect the terminal summary or `coverage/` output.
+
+## Mock HCM triggers
+
+- Anniversary bonus: `POST /api/hcm/simulate/anniversary` with `{ "employeeId": "emp-001" }`
+- Silent failure: ~5% rate on submit (configurable in `hcmStore`)
+
+## Seeded data
+
+- Employee: Alex Rivera (`emp-001`)
+- Manager: Jordan Lee (`mgr-001`)
+- Locations: New York, San Francisco, London
